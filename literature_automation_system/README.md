@@ -38,7 +38,10 @@ literature_automation_system/
     ```
     Otherwise, download the `literature_automation_system` directory and its contents.
 
-2.  **Create a virtual environment (recommended):**
+2.  **Python Version:**
+    This system is developed and tested with Python 3.7+. Please ensure you have a compatible version installed. The type hints used (`typing.List`, `typing.Dict`, etc.) are compatible with Python 3.7 and newer. For Python 3.9+ you could use built-in `list`, `dict` for type hinting more directly in some cases, but this project maintains compatibility with 3.7+.
+
+3.  **Create a virtual environment (recommended):**
     This isolates project dependencies.
     ```bash
     python -m venv venv
@@ -53,18 +56,18 @@ literature_automation_system/
       venv\Scripts\activate
       ```
 
-3.  **Install dependencies:**
+4.  **Install dependencies:**
     Ensure your virtual environment is activated.
     ```bash
     pip install -r requirements.txt
     ```
     *Note: The LLM module uses Hugging Face's `transformers` library. The first time you run the system with LLM preprocessing enabled (`--enable_llm`), it will download the specified pre-trained model (e.g., "distilbert-base-cased-distilled-squad"). This download can be several hundred MBs and may take some time depending on your internet connection.*
 
-4.  **NCBI Entrez Email:**
+5.  **NCBI Entrez Email:**
     PubMed's Entrez API requires users to specify an email address for API access. This helps NCBI contact users if there are issues. You **must** set this via the `--entrez_email` argument when running `main.py`.
     Example: `--entrez_email your.name@example.com`
 
-5.  **NCBI API Key (Optional but Recommended):**
+6.  **NCBI API Key (Optional but Recommended):**
     For more intensive use or to avoid potential rate-limiting, it is highly recommended to obtain a free NCBI API key. Once you have a key, provide it using the `--ncbi_api_key YOUR_KEY_HERE` argument.
     You can get an API key from your NCBI account settings.
 

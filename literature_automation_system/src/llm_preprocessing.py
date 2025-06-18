@@ -2,6 +2,7 @@
 This module provides functions for preprocessing literature data using LLMs.
 """
 import logging
+from typing import List, Dict # Added typing
 from transformers import pipeline, AutoTokenizer, AutoModelForQuestionAnswering
 
 # Configure logging
@@ -17,7 +18,7 @@ QA_QUESTIONS = {
 
 DEFAULT_MODEL_NAME = "distilbert-base-cased-distilled-squad"
 
-def preprocess_with_llm(articles_data: list[dict], model_name: str = DEFAULT_MODEL_NAME) -> list[dict]:
+def preprocess_with_llm(articles_data: List[Dict], model_name: str = DEFAULT_MODEL_NAME) -> List[Dict]:
     """
     Augments article data with fields extracted from abstracts using a Hugging Face
     question-answering model.

@@ -1,13 +1,14 @@
 """
 This module provides functions for searching and retrieving literature from PubMed.
 """
+from typing import List, Dict, Optional
 from Bio import Entrez, Medline
 import logging
 
 # Configure logging
 logging.basicConfig(level=logging.INFO, format='%(levelname)s: %(message)s')
 
-def search_pubmed(keywords: str, start_year: int, end_year: int, max_results: int = 20, api_key: str = None) -> list[dict]:
+def search_pubmed(keywords: str, start_year: int, end_year: int, max_results: int = 20, api_key: Optional[str] = None) -> List[Dict]:
     """
     Searches PubMed for articles based on keywords and a date range.
 

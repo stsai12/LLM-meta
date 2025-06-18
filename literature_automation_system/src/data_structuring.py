@@ -1,6 +1,7 @@
 """
 This module provides functions for structuring and saving literature data.
 """
+from typing import List, Dict, Optional
 import pandas as pd
 import os
 import logging
@@ -11,7 +12,7 @@ logging.basicConfig(level=logging.INFO, format='%(levelname)s: %(message)s')
 # Define review keywords for filtering (case-insensitive)
 REVIEW_KEYWORDS = ["review", "meta-analysis", "systematic review"]
 
-def structure_and_save_data(articles_data: list[dict], output_filename: str, filter_reviews: bool = False) -> str | None:
+def structure_and_save_data(articles_data: List[Dict], output_filename: str, filter_reviews: bool = False) -> Optional[str]:
     """
     Structures article data into a Pandas DataFrame, optionally filters out reviews,
     and saves it to a CSV file in the 'data/' directory.
