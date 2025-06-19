@@ -50,12 +50,15 @@ def structure_and_save_data(articles_data: List[Dict], output_filename: str, fil
 
     try:
         df = pd.DataFrame(processed_articles)
-        # Ensure standard column order
-        columns = ["Title", "Authors", "Journal", "DOI", "Publication Year", "Abstract"]
-        # Filter out any columns not present in the DataFrame to avoid KeyError
-        df_columns = [col for col in columns if col in df.columns]
-        df = df[df_columns]
 
+        # Define the desired column order, including "Source"
+        # "Source" should be populated by the search functions.
+        new_column_list = ["Title", "Authors", "Journal", "DOI", "Publication Year", "Abstract", "Source"]
+
+        # Reindex DataFrame to ensure specified columns are present and in order.
+        # Columns not in new_column_list will be dropped.
+        # Columns in new_column_list but not in df will be added with NaN values.
+        df = df.reindex(columns=new_column_list)
 
         # Ensure the 'data' directory exists within 'literature_automation_system'
         # Assuming the script is run from a context where 'literature_automation_system' is accessible

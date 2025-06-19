@@ -4,6 +4,7 @@
 This system automates the process of searching for scientific literature on PubMed, structuring the retrieved metadata, and optionally extracting key information from article abstracts using a Language Model (LLM). It is designed to help researchers and analysts quickly gather and preprocess relevant literature for their studies.
 
 ## Features
+- Supports searching multiple literature databases: PubMed and Semantic Scholar.
 - Connects to PubMed via the Entrez API using Biopython.
 - Fetches comprehensive article metadata: title, authors, journal, DOI, publication year, and abstract.
 - Allows user-defined search criteria including keywords, publication year range, and maximum number of results.
@@ -82,6 +83,7 @@ The main script `main.py` is used to run the entire pipeline from the command li
 **Optional arguments:**
 - `--max_results INT`: Maximum number of articles to fetch (default: 10).
 - `--output_file FILENAME.csv`: Name for the output CSV file (default: "literature_results.csv"). This file will be saved in the `data/` directory.
+- `--source {pubmed,semanticscholar,all}`: Specify the literature database to search (default: `pubmed`). `all` will search both PubMed and Semantic Scholar.
 - `--filter_reviews`: A flag; if present, the system will attempt to filter out review articles and meta-analyses.
 - `--enable_llm`: A flag; if present, enables LLM-based preprocessing of abstracts to extract additional fields.
 - `--llm_model_name MODEL_NAME`: Specify the Hugging Face model name for LLM preprocessing (default: "distilbert-base-cased-distilled-squad").
@@ -94,22 +96,22 @@ The main script `main.py` is used to run the entire pipeline from the command li
     ```bash
     python main.py "diabetes management" --start_year 2020 --end_year 2023 --entrez_email user@example.com
     ```
-2.  **Search with more results, custom output file name, and API key:**
+2.  **Search Semantic Scholar with more results, custom output file name, and API key:**
     ```bash
-    python main.py "cancer immunotherapy" --start_year 2021 --end_year 2023 --max_results 50 --output_file cancer_immuno_research.csv --entrez_email user@example.com --ncbi_api_key YOUR_NCBI_KEY
+    python main.py "cancer immunotherapy" --start_year 2021 --end_year 2023 --source semanticscholar --max_results 50 --output_file cancer_immuno_s2_research.csv --entrez_email user@example.com --ncbi_api_key YOUR_NCBI_KEY
     ```
-3.  **Search, filter reviews, and enable LLM preprocessing with a specific model:**
+3.  **Search all sources, filter reviews, and enable LLM preprocessing with a specific model:**
     ```bash
-    python main.py "Alzheimer's early detection biomarkers" --start_year 2019 --end_year 2022 --max_results 25 --filter_reviews --enable_llm --llm_model_name "dmis-lab/biobert-base-cased-v1.1-squad" --entrez_email user@example.com --ncbi_api_key YOUR_NCBI_KEY
+    python main.py "AI in drug discovery" --start_year 2022 --end_year 2023 --source all --max_results 20 --filter_reviews --enable_llm --llm_model_name "dmis-lab/biobert-base-cased-v1.1-squad" --entrez_email user@example.com --ncbi_api_key YOUR_NCBI_KEY
     ```
     *(Note: Using a different LLM model like BioBERT might require ensuring its compatibility with the question-answering pipeline and could have different performance characteristics.)*
 
 ## Modules
 
 ### 1. Literature Search (`src/literature_search.py`)
-- Utilizes `Biopython` to interact with the NCBI Entrez API.
-- Constructs queries to PubMed based on keywords, date range, and desired number of results.
-- Fetches article details including Title, Authors (AU), Journal (JT), DOI (LID/AID), Publication Year (DP), and Abstract (AB).
+- Interacts with APIs for various literature databases (currently PubMed via Biopython/Entrez and Semantic Scholar via its public API).
+- Constructs queries based on keywords, date range, and desired number of results.
+- Fetches article details and normalizes them. Includes a "Source" field indicating the origin of the data.
 
 ### 2. Data Structuring (`src/data_structuring.py`)
 - Receives the list of article dictionaries from the search module.
@@ -135,6 +137,7 @@ The system generates a CSV file (e.g., `data/literature_results.csv`). The colum
 - `DOI`
 - `Publication Year`
 - `Abstract`
+- `Source` (e.g., 'PubMed', 'SemanticScholar')
 - `Sample Size` (present if LLM preprocessing is enabled)
 - `Study Design` (present if LLM preprocessing is enabled)
 - `Outcome Type` (present if LLM preprocessing is enabled)
@@ -144,6 +147,7 @@ The system generates a CSV file (e.g., `data/literature_results.csv`). The colum
 All Python dependencies are listed in `requirements.txt`:
 - `biopython`: For NCBI Entrez API interaction.
 - `pandas`: For data manipulation and CSV file creation.
+- `requests`: For making HTTP requests to external APIs (e.g., Semantic Scholar).
 - `transformers`: For Hugging Face models (LLM preprocessing).
 - `torch`: The deep learning framework used by default for many Hugging Face models. (Or `tensorflow` if models compatible with it are used and TF is preferred). Ensure one is installed if using the LLM feature.
 - `logging`: (Standard library) Used for progress and error messages.

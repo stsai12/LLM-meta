@@ -14,7 +14,7 @@ import sys
 sys.path.append(os.path.join(os.path.dirname(__file__), 'src'))
 
 try:
-    from literature_search import search_pubmed
+    from literature_search import search_literature # Updated import
     from data_structuring import structure_and_save_data
     from llm_preprocessing import preprocess_with_llm, DEFAULT_MODEL_NAME
     from Bio import Entrez # For setting Entrez.email
@@ -36,6 +36,7 @@ def main():
     parser.add_argument("--end_year", type=int, required=True, help="End year for publication search")
     parser.add_argument("--max_results", type=int, default=10, help="Maximum number of results to fetch (default: 10)")
     parser.add_argument("--output_file", type=str, default="literature_results.csv", help="Name of the output CSV file (default: 'literature_results.csv')")
+    parser.add_argument("--source", type=str, default="pubmed", choices=["pubmed", "semanticscholar", "all"], help="Source for literature search (default: pubmed)")
     parser.add_argument("--filter_reviews", action='store_true', help="Flag to filter out reviews/meta-analyses from results")
     parser.add_argument("--enable_llm", action='store_true', help="Flag to enable LLM preprocessing for extracting additional fields")
     parser.add_argument("--llm_model_name", type=str, default=DEFAULT_MODEL_NAME, help=f"Hugging Face model name for LLM preprocessing (default: '{DEFAULT_MODEL_NAME}')")
@@ -52,20 +53,22 @@ def main():
     if args.ncbi_api_key:
         Entrez.api_key = args.ncbi_api_key
 
-
-    logging.info(f"Starting literature search for keywords: '{args.keywords}'")
+    # Updated logging to include source
+    logging.info(f"Starting literature search from source: {args.source} for keywords: '{args.keywords}'")
     logging.info(f"Publication years: {args.start_year}-{args.end_year}, Max results: {args.max_results}")
     if args.filter_reviews:
         logging.info("Review filtering is enabled.")
     if args.enable_llm:
         logging.info(f"LLM preprocessing is enabled with model: {args.llm_model_name}")
 
-    articles = search_pubmed(
+    # Call the new search_literature function
+    articles = search_literature(
+        source=args.source,
         keywords=args.keywords,
         start_year=args.start_year,
         end_year=args.end_year,
         max_results=args.max_results,
-        api_key=args.ncbi_api_key # Pass the API key argument directly
+        pubmed_api_key=args.ncbi_api_key
     )
 
     if articles:
