@@ -23,7 +23,8 @@ def search_semanticscholar(
     keywords: str,
     start_year: int,
     end_year: int,
-    max_results: int = 20
+    max_results: int = 20,
+    api_key: Optional[str] = None
 ) -> List[Dict]:
     """
     Searches Semantic Scholar for articles based on keywords and a date range.
@@ -33,6 +34,7 @@ def search_semanticscholar(
         start_year (int): Start of the publication year range.
         end_year (int): End of the publication year range.
         max_results (int): Maximum number of articles to fetch. Defaults to 20.
+        api_key (str, optional): API key for Semantic Scholar. Defaults to None.
 
     Returns:
         list[dict]: A list of dictionaries, where each dictionary contains
@@ -47,13 +49,20 @@ def search_semanticscholar(
         "fields": DEFAULT_SEMANTIC_SCHOLAR_FIELDS,
         "year": f"{start_year}-{end_year}"
     }
+    headers = {}
+    if api_key:
+        headers['x-api-key'] = api_key
+        logger.info("Using Semantic Scholar API key.")
+    else:
+        logger.info("Semantic Scholar API key not provided. Using public access (rate limits may apply).")
+
 
     try:
         # Semantic Scholar API has a rate limit of 100 requests per 5 minutes for non-authenticated users.
         # A single search is one request. Adding a small delay as a general good practice.
         time.sleep(1) # Politeness delay
 
-        response = requests.get(SEMANTIC_SCHOLAR_API_URL, params=query_params, timeout=20) # Added timeout
+        response = requests.get(SEMANTIC_SCHOLAR_API_URL, params=query_params, headers=headers, timeout=20) # Added headers and timeout
         response.raise_for_status()  # Raises HTTPError for bad responses (4XX or 5XX)
         data = response.json()
 
@@ -116,7 +125,7 @@ def search_pubmed(keywords: str, start_year: int, end_year: int, max_results: in
     if api_key: # This is correctly passed.
         Entrez.api_key = api_key
 
-    search_term = f"{keywords} AND ({start_year}[mindate] : {end_year}[maxdate])"
+    search_term = f"{keywords} AND ('{start_year}/01/01'[Date - Publication] : '{end_year}/12/31'[Date - Publication])"
     articles = []
 
     try:
@@ -191,7 +200,8 @@ def search_literature(
     start_year: int,
     end_year: int,
     max_results: int,
-    pubmed_api_key: Optional[str] = None
+    pubmed_api_key: Optional[str] = None,
+    semanticscholar_api_key: Optional[str] = None
 ) -> List[Dict]:
     """
     Dispatcher function to search literature from the specified source.
@@ -204,6 +214,7 @@ def search_literature(
         max_results (int): Maximum number of results to fetch.
                            If 'all', this number is targeted for each source.
         pubmed_api_key (str, optional): NCBI API key for PubMed.
+        semanticscholar_api_key (str, optional): API key for Semantic Scholar.
 
     Returns:
         list[dict]: A list of articles from the specified source(s).
@@ -219,7 +230,7 @@ def search_literature(
             # For now, proceed, but main.py must set it.
         all_articles = search_pubmed(keywords, start_year, end_year, max_results, api_key=pubmed_api_key)
     elif source == "semanticscholar":
-        all_articles = search_semanticscholar(keywords, start_year, end_year, max_results)
+        all_articles = search_semanticscholar(keywords, start_year, end_year, max_results, api_key=semanticscholar_api_key)
     elif source == "all":
         logger.info(f"Searching all sources. Max results per source: {max_results}")
         # Note: Entrez.email must be set for PubMed search
@@ -229,7 +240,7 @@ def search_literature(
             # For now, it will attempt pubmed search which will log its own error if email is missing.
 
         pubmed_articles = search_pubmed(keywords, start_year, end_year, max_results, api_key=pubmed_api_key)
-        semanticscholar_articles = search_semanticscholar(keywords, start_year, end_year, max_results)
+        semanticscholar_articles = search_semanticscholar(keywords, start_year, end_year, max_results, api_key=semanticscholar_api_key)
 
         all_articles.extend(pubmed_articles)
         all_articles.extend(semanticscholar_articles)

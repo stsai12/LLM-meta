@@ -89,6 +89,7 @@ The main script `main.py` is used to run the entire pipeline from the command li
 - `--llm_model_name MODEL_NAME`: Specify the Hugging Face model name for LLM preprocessing (default: "distilbert-base-cased-distilled-squad").
 - `--entrez_email EMAIL_ADDRESS`: **(Effectively Required)** Your email address for NCBI Entrez.
 - `--ncbi_api_key YOUR_API_KEY`: Your NCBI API key (optional, but recommended).
+- `--semanticscholar_api_key YOUR_S2_KEY`: Your Semantic Scholar API key (optional, but recommended for higher request rates and to avoid 429 errors). You can apply for one at [https://www.semanticscholar.org/product/api#api-key-form](https://www.semanticscholar.org/product/api#api-key-form).
 
 **Example commands:**
 
@@ -98,7 +99,7 @@ The main script `main.py` is used to run the entire pipeline from the command li
     ```
 2.  **Search Semantic Scholar with more results, custom output file name, and API key:**
     ```bash
-    python main.py "cancer immunotherapy" --start_year 2021 --end_year 2023 --source semanticscholar --max_results 50 --output_file cancer_immuno_s2_research.csv --entrez_email user@example.com --ncbi_api_key YOUR_NCBI_KEY
+    python main.py "cancer immunotherapy" --start_year 2021 --end_year 2023 --source semanticscholar --max_results 50 --output_file cancer_immuno_s2_research.csv --semanticscholar_api_key YOUR_S2_KEY --entrez_email user@example.com
     ```
 3.  **Search all sources, filter reviews, and enable LLM preprocessing with a specific model:**
     ```bash
@@ -110,7 +111,7 @@ The main script `main.py` is used to run the entire pipeline from the command li
 
 ### 1. Literature Search (`src/literature_search.py`)
 - Interacts with APIs for various literature databases (currently PubMed via Biopython/Entrez and Semantic Scholar via its public API).
-- Constructs queries based on keywords, date range, and desired number of results.
+- Constructs queries based on keywords, date range (using YYYY/MM/DD format for PubMed for robustness, though very future years might still yield limited results due to data availability), and desired number of results.
 - Fetches article details and normalizes them. Includes a "Source" field indicating the origin of the data.
 
 ### 2. Data Structuring (`src/data_structuring.py`)

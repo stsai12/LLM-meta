@@ -42,6 +42,7 @@ def main():
     parser.add_argument("--llm_model_name", type=str, default=DEFAULT_MODEL_NAME, help=f"Hugging Face model name for LLM preprocessing (default: '{DEFAULT_MODEL_NAME}')")
     parser.add_argument("--entrez_email", type=str, default="your.email@example.com", help="Email address for NCBI Entrez API (required by NCBI)")
     parser.add_argument("--ncbi_api_key", type=str, default=None, help="NCBI API key for Entrez (optional, but recommended for higher request rates)")
+    parser.add_argument("--semanticscholar_api_key", type=str, default=None, required=False, help="API key for Semantic Scholar (optional, for higher request rates)")
 
     args = parser.parse_args()
 
@@ -68,7 +69,8 @@ def main():
         start_year=args.start_year,
         end_year=args.end_year,
         max_results=args.max_results,
-        pubmed_api_key=args.ncbi_api_key
+        pubmed_api_key=args.ncbi_api_key,
+        semanticscholar_api_key=args.semanticscholar_api_key
     )
 
     if articles:
